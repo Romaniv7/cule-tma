@@ -80,8 +80,8 @@ function RowItem({ r, highlight = false }: { r: Ranked; highlight?: boolean }) {
       bg={bg}
       justify="space-between"
       align="center"
-      spacing="2"
-      minH="46px"
+      spacing="1"
+      minH="40px"
     >
       <HStack spacing="2">
         <Badge
