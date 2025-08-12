@@ -82,7 +82,7 @@ export function JerseyCard({
         fontWeight="900"
         color="white"
         textShadow="0 6px 18px rgba(0,0,0,.45)"
-        sx={{ fontSize: '64px !important', letterSpacing: '0.04em' }}
+        sx={{ fontSize: '32px !important', letterSpacing: '0.04em' }}
       >
         {username}
       </Text>

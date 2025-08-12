@@ -126,7 +126,7 @@ export function Mine() {
         <Heading
           fontWeight={900}
           lineHeight="1"
-          sx={{ fontSize: '96px !important', textShadow: '0 10px 32px rgba(0,0,0,.45)' }}
+          sx={{ fontSize: '48px !important', textShadow: '0 10px 32px rgba(0,0,0,.45)' }}
         >
           {state.coins}
         </Heading>
