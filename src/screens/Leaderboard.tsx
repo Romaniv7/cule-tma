@@ -5,22 +5,21 @@ import {
   Tabs, TabList, Tab, TabPanels, TabPanel, Badge
 } from '@chakra-ui/react'
 import { load } from '../lib/game'
-import { CoinIcon, CULE_YELLOW } from '../ui'
+import { CoinIcon } from '../ui'
 
 type Row = { name: string; value: number }
+type Ranked = Row & { rank: number }
 
 const GOLD   = 'rgba(255,223,27,.12)'
 const SILVER = 'rgba(192,196,214,.12)'
 const BRONZE = 'rgba(205,127,50,.12)'
-const HILITE = 'rgba(30,58,138,.18)' // підсвітка для свого рядка
+const ME_BG  = 'rgba(30,58,138,.18)'
 
-const CONDITIONS = {
-  overall: 'Демо: 1 місце — $1000, 2 місце — $500, 3 місце — $300.',
-  monthly: 'Демо: щомісячні призи — 1 місце $300, 2 — $150, 3 — $100.',
-  referrals: 'Демо: за рефералів — 1 місце $200, 2 — $100, 3 — $50.',
-}
+const NOTE_OVERALL   = 'Демо: 1 місце — $1000, 2 місце — $500, 3 місце — $300.'
+const NOTE_MONTHLY   = 'Демо: щомісячні призи — 1 місце $300, 2 — $150, 3 — $100.'
+const NOTE_REFERRALS = 'Демо: за рефералів — 1 місце $200, 2 — $100, 3 — $50.'
 
-// ===== ДЕМО-ДАНІ (тимчасово) =====
+// ---- Демо-дані (заміниш API пізніше) ----
 const demoOverall: Row[] = [
   { name:'leo',   value: 9200 }, { name:'xavi',  value: 7800 }, { name:'gavi',  value: 6100 },
   { name:'ansu',  value: 5400 }, { name:'pedri', value: 5200 }, { name:'sergi', value: 4800 },
@@ -41,120 +40,108 @@ const demoReferrals: Row[] = [
   { name:'culer-153', value: 3 },
 ]
 
-// Вертає top10 + твій рядок, якщо ти поза топом
+// Трансформує у “топ-10 + я (якщо не в топі)”
 function rankify(source: Row[], meName: string, meValue: number) {
-  const map = new Map<string, number>()
-  for (const r of source) map.set(r.name, r.value)
-  if (meName) map.set(meName, Math.max(meValue, map.get(meName) ?? 0))
+  const arr = [...source]
+  // оновлюємо/додаємо себе
+  const meIdx = arr.findIndex(r => r.name === meName)
+  if (meIdx >= 0) arr[meIdx] = { name: meName, value: Math.max(arr[meIdx].value, meValue) }
+  else if (meName) arr.push({ name: meName, value: meValue })
 
-  const all = Array.from(map.entries()).map(([name, value]) => ({ name, value }))
-  all.sort((a, b) => b.value - a.value)
+  arr.sort((a, b) => b.value - a.value)
 
-  const top = all.slice(0, 10)
-  const meIndex = all.findIndex(r => r.name === meName)
-  const myRow = meIndex >= 10 ? { rank: meIndex + 1, ...all[meIndex] } : null
+  const ranked: Ranked[] = arr.map((r, i) => ({ ...r, rank: i + 1 }))
+  const top10: Ranked[] = ranked.slice(0, 10)
+  const me = ranked.find(r => r.name === meName) || null
 
-  return { top: top.map((r, i) => ({ rank: i + 1, ...r })), myRow }
+  return { top10, me: me && me.rank > 10 ? me : null }
 }
 
-function TopEmoji({ rank }: { rank: number }) {
+function TopMedal({ rank }: { rank: number }) {
   if (rank === 1) return <span>🥇</span>
   if (rank === 2) return <span>🥈</span>
   if (rank === 3) return <span>🥉</span>
   return null
 }
 
-function RowItem({
-  rank, name, value, highlight = false,
-}: { rank: number; name: string; value: number; highlight?: boolean }) {
-  // компактні відступи та кеглі
+function RowItem({ r, highlight = false }: { r: Ranked; highlight?: boolean }) {
   let bg = '#0d1117', border = 'gray.700'
-  if (rank === 1) { bg = GOLD; border = 'rgba(255,223,27,.35)' }
-  else if (rank === 2) { bg = SILVER; border = 'rgba(192,196,214,.35)' }
-  else if (rank === 3) { bg = BRONZE; border = 'rgba(205,127,50,.35)' }
-  if (highlight) { bg = HILITE; border = '#1e3a8a' }
+  if (r.rank === 1) { bg = GOLD; border = 'rgba(255,223,27,.35)' }
+  else if (r.rank === 2) { bg = SILVER; border = 'rgba(192,196,214,.35)' }
+  else if (r.rank === 3) { bg = BRONZE; border = 'rgba(205,127,50,.35)' }
+  if (highlight) { bg = ME_BG; border = '#1e3a8a' }
 
   return (
     <HStack
-      p="2"                 // було більше
-      border="1px solid"
+      p="2"
+      borderWidth="1px"
       borderColor={border}
       borderRadius="12px"
       bg={bg}
       justify="space-between"
       align="center"
-      spacing="2"           // було більше
-      minH="48px"           // щільний, але читабельний рядок
+      spacing="2"
+      minH="46px"
     >
       <HStack spacing="2">
         <Badge
-          px="2"
-          py="0.5"
+          px="2" py="0.5"
           borderRadius="10px"
-          bg={CULE_YELLOW}
+          bg="yellow.300"
           color="#0b0b0b"
           fontWeight="900"
-          minW="30px"
+          minW="28px"
           textAlign="center"
-          fontSize="sm"
+          fontSize="xs"
         >
-          {rank}
+          {r.rank}
         </Badge>
 
         <HStack spacing="1.5">
-          <Text fontWeight={highlight ? '800' : (rank <= 3 ? '700' : '600')} fontSize="sm">
-            {name}
+          <Text fontWeight={highlight ? '800' : (r.rank <= 3 ? '700' : '600')} fontSize="sm">
+            {r.name}
           </Text>
-          <TopEmoji rank={rank} />
+          <TopMedal rank={r.rank} />
         </HStack>
       </HStack>
 
       <HStack spacing="1.5">
         <CoinIcon width={14} height={14} />
-        <Text fontWeight="800" fontSize="sm">{value}</Text>
+        <Text fontWeight="800" fontSize="sm">{r.value}</Text>
       </HStack>
     </HStack>
   )
 }
 
-function InfoNote({ text }: { text: string }) {
+function Note({ children }: { children: React.ReactNode }) {
   return (
     <Box
-      mb="2"            // менший відступ
+      mb="2"
       px="3"
       py="2"
-      border="1px solid"
+      borderWidth="1px"
       borderColor="gray.700"
       borderRadius="12px"
       bg="#0d1117"
       fontSize="sm"
       opacity={0.9}
     >
-      {text}
+      {children}
     </Box>
   )
 }
 
-function Board({
-  data, meName, meValue, note,
-}: { data: Row[]; meName: string; meValue: number; note: string }) {
-  const { top, myRow } = useMemo(() => rankify(data, meName, meValue), [data, meName, meValue])
+function Board({ data, meName, meValue, note }: {
+  data: Row[]; meName: string; meValue: number; note: string
+}) {
+  const { top10, me } = useMemo(() => rankify(data, meName, meValue), [data, meName, meValue])
 
   return (
     <Box>
-      <InfoNote text={note} />
-      <VStack align="stretch" spacing="2"> {/* щільніше між рядками */}
-        {top.map(r => (
-          <RowItem key={r.rank + r.name} rank={r.rank} name={r.name} value={r.value} />
-        ))}
-        {myRow && (
-          <RowItem
-            rank={myRow.rank}
-            name={myRow.name}
-            value={myRow.value}
-            highlight
-          />
-        )}
+      <Note>{note}</Note>
+      <VStack align="stretch" spacing="2">
+        {top10.map(r => (<RowItem key={r.rank + r.name} r={r} />))}
+        {me && <RowItem r={me} highlight />}
       </VStack>
     </Box>
   )
@@ -163,9 +150,9 @@ function Board({
 export function Leaderboard() {
   const me = load()
   const meName = me.username || 'you'
-  const meOverall = me.coins || 0
-  const meMonthly   = Math.min(meOverall,  Math.floor(meOverall * 0.3)) // демо
-  const meReferrals = Number(localStorage.getItem('blau_refs') || '0')
+  const totalCoins = me.coins || 0
+  const monthlyCoins = Math.min(totalCoins, Math.floor(totalCoins * 0.3)) // демо
+  const refCount = Number(localStorage.getItem('blau_refs') || '0')
 
   return (
     <Box className="screen">
@@ -174,7 +161,7 @@ export function Leaderboard() {
       <Tabs variant="soft-rounded" colorScheme="blue" isFitted size="sm">
         <TabList
           bg="#0d1117"
-          border="1px solid"
+          borderWidth="1px"
           borderColor="gray.700"
           borderRadius="lg"
           p="1"
@@ -187,13 +174,13 @@ export function Leaderboard() {
 
         <TabPanels>
           <TabPanel px="0">
-            <Board data={demoOverall}   meName={meName} meValue={meOverall}   note={CONDITIONS.overall} />
+            <Board data={demoOverall}   meName={meName} meValue={totalCoins}   note={NOTE_OVERALL} />
           </TabPanel>
           <TabPanel px="0">
-            <Board data={demoMonthly}   meName={meName} meValue={meMonthly}   note={CONDITIONS.monthly} />
+            <Board data={demoMonthly}   meName={meName} meValue={monthlyCoins} note={NOTE_MONTHLY} />
           </TabPanel>
           <TabPanel px="0">
-            <Board data={demoReferrals} meName={meName} meValue={meReferrals} note={CONDITIONS.referrals} />
+            <Board data={demoReferrals} meName={meName} meValue={refCount}    note={NOTE_REFERRALS} />
           </TabPanel>
         </TabPanels>
       </Tabs>
