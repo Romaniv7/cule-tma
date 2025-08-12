@@ -124,9 +124,9 @@ export function Mine() {
       <HStack spacing={3} align="center" justify="center" w="100%" mt={1} mb={1}>
         <CoinIcon width={60} height={60} />
         <Heading
-          fontSize={{ base: '48px', md: '56px', lg: '64px' }}
+          fontSize={{ base: '56px', md: '64px', lg: '72px' }}
           fontWeight={900}
-          sx={{ textShadow: '0 6px 24px rgba(0,0,0,.35)' }}
+          sx={{ textShadow: '0 8px 28px rgba(0,0,0,.40)' }}
         >
           {state.coins}
         </Heading>
@@ -175,10 +175,11 @@ export function Mine() {
       <HStack justify="space-between" align="center" w="100%" mt={2} mb={1}>
         <Badge
           px="2.5" py="1.5" borderRadius="10px"
-          bg="rgba(255,255,255,0.06)"
+          bg="rgba(255, 255, 255, 0.06)"
           borderWidth="1px"
           borderColor="rgba(255,255,255,0.08)"
           fontWeight="700" fontSize="sm"
+          color="white"
         >
           ⚡ {state.energy}/{state.energyMax}
         </Badge>
@@ -198,10 +199,11 @@ export function Mine() {
 
         <Badge
           px="2.5" py="1.5" borderRadius="10px"
-          bg="rgba(255,255,255,0.06)"
+          bg="rgba(255, 255, 255, 0.06)"
           borderWidth="1px"
           borderColor="rgba(255,255,255,0.08)"
           fontWeight="700" fontSize="sm"
+          color="white"
         >
           ×{state.multi} 👉
         </Badge>
