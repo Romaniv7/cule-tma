@@ -143,3 +143,41 @@ body {
     display: none;
   }
 }
+
+/* ===== Shell-розкладка без скролу ===== */
+.app-shell {
+  height: var(--app-height);
+  min-height: var(--app-height);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Фіксовані зони */
+.shell-header,
+.shell-footer {
+  flex: 0 0 auto;
+}
+
+/* Центруємо “полотно” і додаємо внутрішні поля, щоб елементи не "липли" до країв */
+.canvas-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: start;      /* початок зверху, виглядає природніше */
+  justify-content: center; /* по центру по горизонталі */
+  overflow: hidden;
+  padding: 16px;           /* внутрішній відступ по краях контенту */
+  box-sizing: border-box;
+}
+
+/* “Полотно” з фіксованою дизайн-висотою, масштабується рівномірно */
+.canvas {
+  width: 100%;
+  max-width: 480px;               /* обмежуємо ширину, щоб не розтікалось */
+  transform-origin: top center;   /* масштабуємо від верхнього краю */
+}
+
+/* При потребі — адаптивна типографіка всередині полотна */
+.canvas h1, .canvas h2, .canvas p, .canvas button {
+  font-size: clamp(14px, 2.5vw, 18px);
+}
