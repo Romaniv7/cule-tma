@@ -83,7 +83,7 @@ function RowItem({ r, highlight = false }: { r: Ranked; highlight?: boolean }) {
       spacing="1"
       minH="36px"
     >
-      <HStack spacing="2">
+      <HStack spacing="1">
         <Badge
           px="2" py="0.5"
           borderRadius="10px"
