@@ -5,7 +5,7 @@ import { Mine } from './screens/Mine'
 import { Earn } from './screens/Earn'
 import { Predict } from './screens/Predict'
 import { Leaderboard } from './screens/Leaderboard'
-import { Profile } from './screens/Profile'
+import Profile from './screens/Profile'
 import AppShell from './components/AppShell'   // ← default import
 import { BottomNav } from './components/BottomNav'
 
