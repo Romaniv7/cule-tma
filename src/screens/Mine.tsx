@@ -4,11 +4,11 @@ import {
   Box, Button, HStack, Heading, Text, VStack, Badge,
 } from '@chakra-ui/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { defaultState, load, save, nextThreshold } from '../lib/game'
+import { load, save, nextThreshold } from '../lib/game'
 import type { GameState } from '../lib/game'
 import { JerseyCard } from '../components/JerseyCard'
 import { BoostModal } from '../components/BoostModal'
-import { CoinIcon, yellowBtnProps } from '../ui'
+import { CoinIcon } from '../ui'
 import { LevelProgress } from '../components/LevelProgress'
 
 const MotionBox = motion(Box)
@@ -63,7 +63,7 @@ export function Mine() {
 
   function tap(e: React.MouseEvent<HTMLDivElement>) {
     if (state.energy <= 0) return
-    let s = { ...state }
+    const s = { ...state }
     s.energy -= 1
     s.coins += s.multi
     s.xp += s.multi
@@ -77,9 +77,9 @@ export function Mine() {
   }
 
   return (
-    <Box className="screen" pt={2}>
+    <Box className="screen" pt={4}>
       {/* Привітання + бейдж монет справа */}
-      <HStack justify="space-between">
+      <HStack justify="space-between" mb={1}>
         <Heading size="md">Привіт, @{state.username}</Heading>
         <HStack
           bg="#1e3a8a"
@@ -99,21 +99,32 @@ export function Mine() {
       <HStack
         justify="space-between"
         p="3"
-        border="1px solid"
+        borderWidth="1px"
         borderColor="gray.700"
         borderRadius="lg"
         bg="#a2224c"
-        mt={2}                 // трохи нижче
+        mt={3}
+        mb={1}
       >
         <Text><b>Earn</b> 5000 CuleCoins</Text>
-        <Button size="sm" {...yellowBtnProps}>Join</Button>
+        <Button
+          size="sm"
+          bg="#ffd600"
+          color="black"
+          fontWeight="700"
+          borderRadius="10px"
+          px="4"
+          _hover={{ bg: "#ffcc00" }}
+        >
+          Join
+        </Button>
       </HStack>
 
       {/* Центральний лічильник — більший */}
-      <HStack spacing={4} align="center" justify="center" w="100%" mt={1}>
-        <CoinIcon width={56} height={56} />            {/* ↑ збільшено */}
+      <HStack spacing={3} align="center" justify="center" w="100%" mt={1} mb={1}>
+        <CoinIcon width={60} height={60} />
         <Heading
-          fontSize={['44px','56px','64px']}           {/* ↑ збільшено */}
+          fontSize={{ base: '48px', md: '56px', lg: '64px' }}
           fontWeight={900}
           sx={{ textShadow: '0 6px 24px rgba(0,0,0,.35)' }}
         >
@@ -122,7 +133,7 @@ export function Mine() {
       </HStack>
 
       {/* Футболка */}
-      <Box position="relative" w="100%" display="grid" placeItems="center" mt={1}>
+      <Box position="relative" w="100%" display="grid" placeItems="center" mt={1} mb={1}>
         <JerseyCard
           key={`jersey-${skinId || 'default'}`}
           username={state.username}
@@ -160,23 +171,36 @@ export function Mine() {
         </Box>
       </Box>
 
-      {/* Ряд: Енергія — Boost — Множник (в один рівень) */}
-      <HStack justify="space-between" align="center" w="100%" mt={2}>
+      {/* Ряд: Енергія — Boost — Множник */}
+      <HStack justify="space-between" align="center" w="100%" mt={2} mb={1}>
         <Badge
           px="2.5" py="1.5" borderRadius="10px"
-          bg="rgba(255,255,255,0.06)" border="1px solid rgba(255,255,255,0.08)"
+          bg="rgba(255,255,255,0.06)"
+          borderWidth="1px"
+          borderColor="rgba(255,255,255,0.08)"
           fontWeight="700" fontSize="sm"
         >
           ⚡ {state.energy}/{state.energyMax}
         </Badge>
 
-        <Button {...yellowBtnProps} onClick={() => setBoostOpen(true)}>
+        <Button
+          bg="#ffd600"
+          color="black"
+          fontWeight="700"
+          borderRadius="10px"
+          px={6}
+          py={4}
+          _hover={{ bg: "#ffcc00" }}
+          onClick={() => setBoostOpen(true)}
+        >
           Boost
         </Button>
 
         <Badge
           px="2.5" py="1.5" borderRadius="10px"
-          bg="rgba(255,255,255,0.06)" border="1px solid rgba(255,255,255,0.08)"
+          bg="rgba(255,255,255,0.06)"
+          borderWidth="1px"
+          borderColor="rgba(255,255,255,0.08)"
           fontWeight="700" fontSize="sm"
         >
           ×{state.multi} 👉
@@ -186,7 +210,6 @@ export function Mine() {
       {/* Прогрес рівня */}
       <VStack mt={2} spacing={2}>
         <LevelProgress xp={state.xp} need={need} />
-        {/* Кнопку “Скинути прогрес” прибрано */}
       </VStack>
 
       {/* Boost модалка */}
