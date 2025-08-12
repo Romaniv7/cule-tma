@@ -41,7 +41,7 @@ export function Mine() {
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
-    const name = tg?.initDataUnsafe?.user?.first_name || tg?.initDataUnsafe?.user?.username
+    const name = tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name
     if (name && name !== state.username) {
       const s = { ...state, username: name }; save(s); setState(s)
     }
@@ -124,7 +124,7 @@ export function Mine() {
       <HStack spacing={3} align="center" justify="center" w="100%" mt={1} mb={1}>
         <CoinIcon width={60} height={60} />
         <Heading
-          fontSize={{ base: '56px', md: '64px', lg: '72px' }}
+          fontSize={{ base: '72px', md: '84px', lg: '88px' }}
           fontWeight={900}
           sx={{ textShadow: '0 8px 28px rgba(0,0,0,.40)' }}
         >

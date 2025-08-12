@@ -75,13 +75,13 @@ export function JerseyCard({
       {/* username — зроблено більшим та читабельним */}
       <Text
         position="absolute"
-        top="30px"
+        top="36px"
         left="0"
         right="0"
         textAlign="center"
         fontWeight="900"
         // responsive: base / sm / md
-        fontSize={['22px', '24px', '26px']}
+        fontSize={['44px', '48px', '52px']}
         letterSpacing="0.04em"
         color="white"
         textShadow="0 6px 18px rgba(0,0,0,.45)"
