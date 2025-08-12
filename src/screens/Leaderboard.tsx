@@ -131,35 +131,28 @@ function Note({ children }: { children: React.ReactNode }) {
 function Board({ data, meName, meValue, note }: {
   data: Row[]; meName: string; meValue: number; note: string
 }) {
-  const { top10, me } = useMemo(()=>rankify(data, meName, meValue), [data, meName, meValue])
+  const { top10, me } = useMemo(() => rankify(data, meName, meValue), [data, meName, meValue])
 
-  // висота нижньої навігації (≈80) + safe-area
-  const bottomOffset = `calc(84px + env(safe-area-inset-bottom))`
+  // Формуємо список: топ-10 + мій рядок (якщо я поза топом)
+  const rows: Ranked[] = me ? [...top10, me] : top10
 
   return (
-    <Box position="relative">
+    <Box>
       <Note>{note}</Note>
-
-      {/* Топ-10 — компактний список */}
-      <VStack align="stretch" spacing="1" pb="72px">
-        {top10.map(r => (<RowItem key={r.rank+r.name} r={r}/>))}
+      {/* Компактний список без фіксованих елементів і без зайвого падінгу знизу */}
+      <VStack align="stretch" spacing="1">
+        {rows.map(r => (
+          <RowItem
+            key={r.rank + r.name}
+            r={r}
+            highlight={!!me && r.name === me.name}  // підсвічуємо тільки мій рядок
+          />
+        ))}
       </VStack>
-
-      {/* Мій рядок: фіксована плашка над нижнім меню (без скролу) */}
-      {me && (
-        <Box
-          position="fixed"
-          left="0" right="0"
-          bottom={bottomOffset}
-          px="16px"
-          zIndex={5}
-        >
-          <RowItem r={me} highlight />
-        </Box>
-      )}
     </Box>
   )
 }
+
 
 export function Leaderboard() {
   const me = load()
