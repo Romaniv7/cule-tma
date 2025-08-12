@@ -12,7 +12,7 @@ type Row = { name: string; value: number }
 const GOLD   = 'rgba(255,223,27,.12)'
 const SILVER = 'rgba(192,196,214,.12)'
 const BRONZE = 'rgba(205,127,50,.12)'
-const HILITE = 'rgba(30,58,138,.18)' // blau підсвітка для свого рядка
+const HILITE = 'rgba(30,58,138,.18)' // підсвітка для свого рядка
 
 const CONDITIONS = {
   overall: 'Демо: 1 місце — $1000, 2 місце — $500, 3 місце — $300.',
@@ -20,7 +20,7 @@ const CONDITIONS = {
   referrals: 'Демо: за рефералів — 1 місце $200, 2 — $100, 3 — $50.',
 }
 
-// ===== ДЕМО-ДАНІ (заміниш на бекенд пізніше) =====
+// ===== ДЕМО-ДАНІ (тимчасово) =====
 const demoOverall: Row[] = [
   { name:'leo',   value: 9200 }, { name:'xavi',  value: 7800 }, { name:'gavi',  value: 6100 },
   { name:'ansu',  value: 5400 }, { name:'pedri', value: 5200 }, { name:'sergi', value: 4800 },
@@ -41,7 +41,7 @@ const demoReferrals: Row[] = [
   { name:'culer-153', value: 3 },
 ]
 
-// Універсальне ранжування: вертає top10 + твій рядок, якщо ти поза топом
+// Вертає top10 + твій рядок, якщо ти поза топом
 function rankify(source: Row[], meName: string, meValue: number) {
   const map = new Map<string, number>()
   for (const r of source) map.set(r.name, r.value)
@@ -67,7 +67,7 @@ function TopEmoji({ rank }: { rank: number }) {
 function RowItem({
   rank, name, value, highlight = false,
 }: { rank: number; name: string; value: number; highlight?: boolean }) {
-  // підсвітка рядка для топ-3/свого місця (компактні відступи/кеглі)
+  // компактні відступи та кеглі
   let bg = '#0d1117', border = 'gray.700'
   if (rank === 1) { bg = GOLD; border = 'rgba(255,223,27,.35)' }
   else if (rank === 2) { bg = SILVER; border = 'rgba(192,196,214,.35)' }
@@ -76,17 +76,17 @@ function RowItem({
 
   return (
     <HStack
-      p="2.5"
+      p="2"                 // було більше
       border="1px solid"
       borderColor={border}
       borderRadius="12px"
       bg={bg}
       justify="space-between"
       align="center"
-      spacing="2.5"
+      spacing="2"           // було більше
+      minH="48px"           // щільний, але читабельний рядок
     >
-      <HStack spacing="2.5">
-        {/* Жовтий шейп під номером позиції */}
+      <HStack spacing="2">
         <Badge
           px="2"
           py="0.5"
@@ -94,13 +94,13 @@ function RowItem({
           bg={CULE_YELLOW}
           color="#0b0b0b"
           fontWeight="900"
-          minW="34px"
+          minW="30px"
           textAlign="center"
+          fontSize="sm"
         >
           {rank}
         </Badge>
 
-        {/* Нік + медаль для топ-3 */}
         <HStack spacing="1.5">
           <Text fontWeight={highlight ? '800' : (rank <= 3 ? '700' : '600')} fontSize="sm">
             {name}
@@ -120,7 +120,7 @@ function RowItem({
 function InfoNote({ text }: { text: string }) {
   return (
     <Box
-      mb="3"
+      mb="2"            // менший відступ
       px="3"
       py="2"
       border="1px solid"
@@ -143,7 +143,7 @@ function Board({
   return (
     <Box>
       <InfoNote text={note} />
-      <VStack align="stretch" spacing="2">
+      <VStack align="stretch" spacing="2"> {/* щільніше між рядками */}
         {top.map(r => (
           <RowItem key={r.rank + r.name} rank={r.rank} name={r.name} value={r.value} />
         ))}
@@ -164,12 +164,11 @@ export function Leaderboard() {
   const me = load()
   const meName = me.username || 'you'
   const meOverall = me.coins || 0
-  const meMonthly   = Math.min(meOverall,  Math.floor(meOverall * 0.3)) // демо-логіка
+  const meMonthly   = Math.min(meOverall,  Math.floor(meOverall * 0.3)) // демо
   const meReferrals = Number(localStorage.getItem('blau_refs') || '0')
 
   return (
     <Box className="screen">
-      {/* Заголовок по центру */}
       <Heading size="lg" textAlign="center" mb="2">Leaderboard</Heading>
 
       <Tabs variant="soft-rounded" colorScheme="blue" isFitted size="sm">
