@@ -1,7 +1,7 @@
 // src/screens/Mine.tsx
 import { useEffect, useState } from 'react'
 import {
-  Box, Button, HStack, Heading, Text, VStack,
+  Box, Button, HStack, Heading, Text, VStack, Badge,
 } from '@chakra-ui/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { defaultState, load, save, nextThreshold } from '../lib/game'
@@ -12,10 +12,8 @@ import { CoinIcon, yellowBtnProps } from '../ui'
 import { LevelProgress } from '../components/LevelProgress'
 
 const MotionBox = motion(Box)
-
 type Pop = { id: number; x: number; y: number; count: number }
 
-// читання активного скіна (із сховища)
 const readSkin = () =>
   (typeof window !== 'undefined' ? localStorage.getItem('shop_active_skin') : null)
 
@@ -25,18 +23,15 @@ export function Mine() {
   const [pops, setPops] = useState<Pop[]>([])
   const [skinId, setSkinId] = useState<string | null>(readSkin())
 
-  // слухаємо зміну скіна з Profile + оновлюємо при поверненні на сторінку
   useEffect(() => {
     const onSkin = (e: Event) => {
       const id = (e as CustomEvent).detail as string
       setSkinId(id)
     }
     const onFocus = () => setSkinId(readSkin())
-
     window.addEventListener('skin:changed', onSkin as EventListener)
     window.addEventListener('focus', onFocus)
     document.addEventListener('visibilitychange', onFocus)
-
     return () => {
       window.removeEventListener('skin:changed', onSkin as EventListener)
       window.removeEventListener('focus', onFocus)
@@ -44,7 +39,6 @@ export function Mine() {
     }
   }, [])
 
-  // Telegram username
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     const name = tg?.initDataUnsafe?.user?.first_name || tg?.initDataUnsafe?.user?.username
@@ -55,7 +49,6 @@ export function Mine() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Енергія реген
   useEffect(() => {
     const id = setInterval(() => {
       setState(prev => {
@@ -68,7 +61,6 @@ export function Mine() {
 
   const need = nextThreshold(state.level)
 
-  // Тап по футболці
   function tap(e: React.MouseEvent<HTMLDivElement>) {
     if (state.energy <= 0) return
     let s = { ...state }
@@ -78,22 +70,19 @@ export function Mine() {
     while (s.xp >= nextThreshold(s.level)) s.level += 1
     save(s); setState(s)
 
-    // поп з кількістю монет = множнику
     const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
     const id = Date.now() + Math.random()
     setPops(p => [...p, { id, x: e.clientX - rect.left, y: e.clientY - rect.top, count: s.multi }])
     setTimeout(() => setPops(p => p.filter(pp => pp.id !== id)), 700)
   }
 
-  const reset = () => { save(defaultState); setState(load()) }
-
   return (
-    <Box className="screen">
-      {/* Вітання + правий бейдж очок (blau фон) */}
+    <Box className="screen" pt={2}>
+      {/* Привітання + бейдж монет справа */}
       <HStack justify="space-between">
         <Heading size="md">Привіт, @{state.username}</Heading>
         <HStack
-          bg="#1e3a8a"         // blau
+          bg="#1e3a8a"
           color="white"
           borderRadius="12px"
           px="3"
@@ -114,27 +103,33 @@ export function Mine() {
         borderColor="gray.700"
         borderRadius="lg"
         bg="#a2224c"
+        mt={2}                 // трохи нижче
       >
         <Text><b>Earn</b> 5000 CuleCoins</Text>
         <Button size="sm" {...yellowBtnProps}>Join</Button>
       </HStack>
 
-      {/* Центральний лічильник монет з іконкою */}
-      <HStack spacing={4} align="center" justify="center" w="100%">
-        <CoinIcon width={40} height={40} />
-        <Heading fontSize={['36px','44px','52px']}>{state.coins}</Heading>
+      {/* Центральний лічильник — більший */}
+      <HStack spacing={4} align="center" justify="center" w="100%" mt={1}>
+        <CoinIcon width={56} height={56} />            {/* ↑ збільшено */}
+        <Heading
+          fontSize={['44px','56px','64px']}           {/* ↑ збільшено */}
+          fontWeight={900}
+          sx={{ textShadow: '0 6px 24px rgba(0,0,0,.35)' }}
+        >
+          {state.coins}
+        </Heading>
       </HStack>
 
-      {/* Футболка + монетки (оригінальний SVG, без круглої підкладки) */}
-      <Box position="relative" w="100%" display="grid" placeItems="center" mt={2}>
+      {/* Футболка */}
+      <Box position="relative" w="100%" display="grid" placeItems="center" mt={1}>
         <JerseyCard
-          key={`jersey-${skinId || 'default'}`} // важливо!
+          key={`jersey-${skinId || 'default'}`}
           username={state.username}
           level={state.level}
           onTap={tap}
           activeSkinId={skinId || undefined}
-                    />
-
+        />
 
         <Box position="absolute" inset={0} pointerEvents="none">
           <AnimatePresence>
@@ -164,18 +159,34 @@ export function Mine() {
           </AnimatePresence>
         </Box>
       </Box>
-            
-      {/* Показники під карткою */}
-      <HStack justify="space-between">
-        <Text>⚡ {state.energy}/{state.energyMax}</Text>
-        <HStack spacing={1}><Text>×{state.multi}</Text><Text>👉</Text></HStack>
+
+      {/* Ряд: Енергія — Boost — Множник (в один рівень) */}
+      <HStack justify="space-between" align="center" w="100%" mt={2}>
+        <Badge
+          px="2.5" py="1.5" borderRadius="10px"
+          bg="rgba(255,255,255,0.06)" border="1px solid rgba(255,255,255,0.08)"
+          fontWeight="700" fontSize="sm"
+        >
+          ⚡ {state.energy}/{state.energyMax}
+        </Badge>
+
+        <Button {...yellowBtnProps} onClick={() => setBoostOpen(true)}>
+          Boost
+        </Button>
+
+        <Badge
+          px="2.5" py="1.5" borderRadius="10px"
+          bg="rgba(255,255,255,0.06)" border="1px solid rgba(255,255,255,0.08)"
+          fontWeight="700" fontSize="sm"
+        >
+          ×{state.multi} 👉
+        </Badge>
       </HStack>
 
-      {/* Дії */}
-      <VStack>
-        <Button {...yellowBtnProps} onClick={() => setBoostOpen(true)}>Boost</Button>
+      {/* Прогрес рівня */}
+      <VStack mt={2} spacing={2}>
         <LevelProgress xp={state.xp} need={need} />
-        <Button size="xs" variant="outline" onClick={reset}>Скинути прогрес (demo)</Button>
+        {/* Кнопку “Скинути прогрес” прибрано */}
       </VStack>
 
       {/* Boost модалка */}
