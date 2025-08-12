@@ -80,11 +80,9 @@ export function JerseyCard({
         right="0"
         textAlign="center"
         fontWeight="900"
-        // responsive: base / sm / md
-        fontSize={['44px', '48px', '52px']}
-        letterSpacing="0.04em"
         color="white"
         textShadow="0 6px 18px rgba(0,0,0,.45)"
+        sx={{ fontSize: '64px !important', letterSpacing: '0.04em' }}
       >
         {username}
       </Text>
