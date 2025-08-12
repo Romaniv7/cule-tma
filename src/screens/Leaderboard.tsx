@@ -60,16 +60,16 @@ function TopMedal({ rank }: { rank: number }) {
   return null
 }
 
-function RowItem({ r, highlight=false }: { r: Ranked; highlight?: boolean }) {
+function RowItem({ r, highlight = false }: { r: Ranked; highlight?: boolean }) {
   let bg = '#0d1117', border = 'gray.700'
-  if (r.rank===1){ bg=GOLD; border='rgba(255,223,27,.35)' }
-  else if (r.rank===2){ bg=SILVER; border='rgba(192,196,214,.35)' }
-  else if (r.rank===3){ bg=BRONZE; border='rgba(205,127,50,.35)' }
-  if (highlight){ bg=ME_BG; border='#1e3a8a' }
+  if (r.rank === 1) { bg = 'rgba(255,223,27,.12)'; border = 'rgba(255,223,27,.35)' }
+  else if (r.rank === 2) { bg = 'rgba(192,196,214,.12)'; border = 'rgba(192,196,214,.35)' }
+  else if (r.rank === 3) { bg = 'rgba(205,127,50,.12)'; border = 'rgba(205,127,50,.35)' }
+  if (highlight) { bg = '#13213d'; border = '#1e3a8a' }
 
   return (
     <HStack
-      p="2"
+      p="1"                               // було 2
       borderWidth="1px"
       borderColor={border}
       borderRadius="12px"
@@ -77,27 +77,35 @@ function RowItem({ r, highlight=false }: { r: Ranked; highlight?: boolean }) {
       justify="space-between"
       align="center"
       spacing="1"
-      minH="36px"
+      minH="32px"                         // було 36/46
     >
       <HStack spacing="1">
         <Badge
-          px="2" py="0.5"
+          px="1.5" py="0.5"
           borderRadius="10px"
           bg="yellow.300" color="#0b0b0b" fontWeight="900"
-          minW="28px" textAlign="center" fontSize="xs"
-        >{r.rank}</Badge>
+          minW="24px" textAlign="center"
+          sx={{ fontSize: '10px !important' }} // badge цифра менша
+        >
+          {r.rank}
+        </Badge>
 
-        <HStack spacing="1.5">
-          <Text fontWeight={highlight ? '800' : (r.rank<=3?'700':'600')} fontSize="sm">
+        <HStack spacing="1">
+          <Text
+            fontWeight={highlight ? '800' : (r.rank <= 3 ? '700' : '600')}
+            sx={{ fontSize: '12px !important', lineHeight: '1.1' }} // ім’я менше
+          >
             {r.name}
           </Text>
-          <TopMedal rank={r.rank}/>
+          <TopMedal rank={r.rank} />
         </HStack>
       </HStack>
 
       <HStack spacing="1.5">
-        <CoinIcon width={14} height={14}/>
-        <Text fontWeight="800" fontSize="sm">{r.value}</Text>
+        <CoinIcon width={12} height={12} />          {/* було 14 */}
+        <Text fontWeight="800" sx={{ fontSize: '12px !important', lineHeight: '1.1' }}>
+          {r.value}
+        </Text>
       </HStack>
     </HStack>
   )
@@ -105,10 +113,18 @@ function RowItem({ r, highlight=false }: { r: Ranked; highlight?: boolean }) {
 
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <Box
-      mb="2" px="3" py="2" borderWidth="1px" borderColor="gray.700"
-      borderRadius="12px" bg="#0d1117" fontSize="sm" opacity={0.9}
-    >{children}</Box>
+      <Box
+    mb="1"
+    px="2"
+    py="1.5"
+    borderWidth="1px"
+    borderColor="gray.700"
+    borderRadius="12px"
+    bg="#0d1117"
+    sx={{ fontSize: '12px !important' }}   // менший текст
+  >
+    {children}
+  </Box>
   )
 }
 
@@ -125,7 +141,7 @@ function Board({ data, meName, meValue, note }: {
       <Note>{note}</Note>
 
       {/* Топ-10 — компактний список */}
-      <VStack align="stretch" spacing="2" pb="12">
+      <VStack align="stretch" spacing="1" pb="72px">
         {top10.map(r => (<RowItem key={r.rank+r.name} r={r}/>))}
       </VStack>
 
@@ -156,10 +172,10 @@ export function Leaderboard() {
     <Box className="screen">
       <Heading size="lg" textAlign="center" mb="2">Leaderboard</Heading>
 
-      <Tabs variant="soft-rounded" colorScheme="blue" isFitted size="sm">
+      <Tabs variant="soft-rounded" colorScheme="blue" isFitted size="xs">
         <TabList
           bg="#0d1117" borderWidth="1px" borderColor="gray.700"
-          borderRadius="lg" p="1" mb="3"
+          borderRadius="lg" p="0.5" mb="2"
         >
           <Tab _selected={{ bg:'rgba(30,58,138,.25)', color:'white' }} fontWeight="700">Загальний</Tab>
           <Tab _selected={{ bg:'rgba(30,58,138,.25)', color:'white' }} fontWeight="700">Місяць</Tab>
